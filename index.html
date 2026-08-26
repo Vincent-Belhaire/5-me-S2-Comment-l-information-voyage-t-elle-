@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Voyage de l'information - S2</title>
+<meta name="description" content="Animation 5e : comment l'information est transportée par Ethernet, Wi-Fi et fibre optique." />
+<style>
+  :root{
+    --bg:#f6f8fc; --panel:#ffffff; --ink:#172033; --muted:#5f6b7a;
+    --blue:#2d65a3; --blue2:#eaf3ff; --green:#27834a; --green2:#eaf8ef;
+    --violet:#6d55b4; --violet2:#f0ecff; --orange:#d68a00; --orange2:#fff5d9;
+    --line:#d9e1ec; --shadow:0 12px 30px rgba(25,47,77,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#eef4fb 0,#f8fafc 42%,#fff 100%);color:var(--ink)}
+  header{padding:28px 18px 18px;text-align:center}
+  .eyebrow{display:inline-block;padding:6px 11px;border-radius:999px;background:#dcecff;color:#245b91;font-weight:800;font-size:.85rem;letter-spacing:.02em}
+  h1{margin:10px 0 8px;font-size:clamp(1.7rem,3.5vw,2.6rem);line-height:1.12}
+  .lead{max-width:800px;margin:0 auto;color:var(--muted);font-size:1.04rem}
+  main{max-width:1180px;margin:auto;padding:8px 18px 50px}
+  .notice{background:#fff;border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:14px;padding:14px 16px;margin:12px auto 24px;max-width:980px;box-shadow:var(--shadow)}
+  .notice strong{color:var(--blue)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.card{min-height:auto}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);min-height:455px;overflow:hidden;position:relative}
+  .card h2{margin:0 0 4px;font-size:1.35rem}
+  .tag{font-size:.78rem;font-weight:800;padding:4px 9px;border-radius:999px;display:inline-flex;margin-bottom:10px}
+  .ether .tag{background:var(--blue2);color:var(--blue)}
+  .wifi .tag{background:var(--violet2);color:var(--violet)}
+  .fiber .tag{background:var(--orange2);color:var(--orange)}
+  .desc{color:var(--muted);min-height:52px}
+  .stage{height:220px;border-radius:16px;margin:14px 0 16px;border:1px solid var(--line);position:relative;overflow:hidden;background:#f9fbff}
+  .legend{display:grid;gap:8px;margin-top:10px}
+  .legend-row{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:start;padding:9px 10px;border-radius:11px;background:#f7f9fc}
+  .legend-row b{font-size:.93rem}
+  .answer{font-weight:800}
+  .ether .answer{color:var(--blue)} .wifi .answer{color:var(--violet)} .fiber .answer{color:var(--orange)}
+  .small{font-size:.9rem;color:var(--muted)}
+  /* Ethernet */
+  .device{position:absolute;width:72px;height:52px;border:3px solid #344054;border-radius:8px;background:#fff;top:84px}
+  .device.left{left:18px}.device.right{right:18px}
+  .screen{position:absolute;inset:7px 8px 13px;background:#d8e9fb;border-radius:3px}
+  .stand{position:absolute;width:18px;height:6px;background:#344054;bottom:-9px;left:24px}
+  .cable{position:absolute;left:92px;right:92px;top:110px;height:12px;border-radius:8px;background:#2f4858;box-shadow:inset 0 0 0 3px #22313a}
+  .pair{position:absolute;left:0;right:0;height:2px;top:3px;background:#d18c45;opacity:.8}.pair.p2{top:7px;background:#6aa36a}
+  .pulse-e{position:absolute;width:24px;height:12px;top:0;border-radius:8px;background:#70b7ff;box-shadow:0 0 14px #4aa5ff;animation:travel 2s linear infinite}
+  .pulse-e.p2{animation-delay:1s}
+  @keyframes travel{from{left:-22px}to{left:calc(100% + 2px)}}
+  /* Wi-Fi */
+  .ap{position:absolute;left:50%;bottom:31px;transform:translateX(-50%);width:84px;height:38px;border-radius:10px;background:#374151;border:3px solid #222b38}
+  .antenna{position:absolute;bottom:65px;width:4px;height:52px;background:#374151;border-radius:4px}.antenna.a1{left:calc(50% - 35px)}.antenna.a2{left:calc(50% + 31px)}
+  .tablet{position:absolute;right:30px;top:55px;width:45px;height:70px;border:4px solid #344054;border-radius:8px;background:#d8e9fb}
+  .wave{position:absolute;left:50%;bottom:51px;border:3px solid var(--violet);border-radius:50%;transform:translateX(-50%);opacity:0;animation:wave 2.4s ease-out infinite}
+  .w1{width:62px;height:62px}.w2{width:112px;height:112px;animation-delay:.55s}.w3{width:168px;height:168px;animation-delay:1.1s}
+  @keyframes wave{0%{transform:translateX(-50%) scale(.55);opacity:.9}90%{opacity:.08}100%{transform:translateX(-50%) scale(1.14);opacity:0}}
+  .packet{position:absolute;left:50%;bottom:55px;width:18px;height:18px;border-radius:5px;background:#9b87db;box-shadow:0 0 10px #9b87db;animation:toTablet 2.5s ease-in-out infinite}
+  @keyframes toTablet{0%,10%{transform:translate(0,0);opacity:.1}55%{transform:translate(120px,-92px);opacity:1}75%,100%{transform:translate(166px,-103px);opacity:0}}
+  /* Fiber */
+  .fiber-cable{position:absolute;left:34px;right:34px;top:105px;height:18px;background:#161b22;border-radius:12px}
+  .fiber-core{position:absolute;left:34px;right:34px;top:111px;height:6px;background:#e7d389;border-radius:8px;box-shadow:0 0 5px #f3d96a}
+  .light-pulse{position:absolute;width:26px;height:10px;top:109px;border-radius:50%;background:#fff4a8;box-shadow:0 0 10px #ffd83d,0 0 22px #ffbf00;animation:light 1.7s linear infinite}
+  .light-pulse.l2{animation-delay:.85s}
+  @keyframes light{from{left:20px}to{left:calc(100% - 44px)}}
+  .fiber-end{position:absolute;top:87px;width:38px;height:52px;border-radius:8px;background:#20262e}.fiber-end.left{left:18px}.fiber-end.right{right:18px}
+  /* summary */
+  .summary{margin-top:24px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+  .summary h2{margin-top:0}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:700px){.summary-grid{grid-template-columns:1fr}}
+  .pill{padding:12px;border-radius:14px;background:#f7f9fc;border:1px solid var(--line)}
+  .pill b{display:block;margin-bottom:4px}
+  .controls{display:flex;gap:10px;justify-content:center;margin:24px 0 0}
+  button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;background:#2d65a3;color:white;cursor:pointer}
+  button.secondary{background:#e8eef7;color:#234d7b}
+  .paused *{animation-play-state:paused!important}
+  footer{text-align:center;color:#7b8794;font-size:.86rem;padding:20px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <span class="eyebrow">Technologie - 5e</span>
+  <h1>Comment l'information voyage-t-elle ?</h1>
+  <p class="lead">Observe les trois animations. Le support change, donc la forme du signal utilisée pour transporter l'information change aussi.</p>
+</header>
+<main id="app">
+  <div class="notice"><strong>À savoir :</strong> les animations sont des représentations simplifiées. Les données numériques sont codées par les équipements en signaux adaptés au support de transmission.</div>
+
+  <section class="grid" aria-label="Trois supports de transmission">
+    <article class="card ether">
+      <span class="tag">Liaison filaire</span>
+      <h2>Câble Ethernet (RJ45)</h2>
+      <p class="desc">Le câble contient des fils conducteurs en cuivre. Le matériel réseau y fait circuler un signal électrique codé.</p>
+      <div class="stage" aria-label="Animation d'un signal électrique dans un câble Ethernet">
+        <div class="device left"><div class="screen"></div><div class="stand"></div></div>
+        <div class="device right"><div class="screen"></div><div class="stand"></div></div>
+        <div class="cable"><div class="pair"></div><div class="pair p2"></div><div class="pulse-e"></div><div class="pulse-e p2"></div></div>
+      </div>
+      <div class="legend">
+        <div class="legend-row"><b>Support</b><span>Câble Ethernet (RJ45)</span></div>
+        <div class="legend-row"><b>Transport</b><span class="answer">signal électrique</span></div>
+      </div>
+    </article>
+
+    <article class="card wifi">
+      <span class="tag">Liaison sans fil</span>
+      <h2>Wi-Fi</h2>
+      <p class="desc">Il n'y a pas de câble entre les appareils. L'information est transportée dans l'air par des ondes électromagnétiques.</p>
+      <div class="stage" aria-label="Animation des ondes électromagnétiques du Wi-Fi">
+        <div class="antenna a1"></div><div class="antenna a2"></div><div class="ap"></div>
+        <div class="tablet"></div>
+        <div class="wave w1"></div><div class="wave w2"></div><div class="wave w3"></div><div class="packet"></div>
+      </div>
+      <div class="legend">
+        <div class="legend-row"><b>Support</b><span>Air / espace entre les appareils</span></div>
+        <div class="legend-row"><b>Transport</b><span class="answer">ondes électromagnétiques</span></div>
+      </div>
+    </article>
+
+    <article class="card fiber">
+      <span class="tag">Liaison filaire</span>
+      <h2>Fibre optique</h2>
+      <p class="desc">La fibre guide de la lumière dans un cœur transparent. Le matériel convertit les données en signal lumineux.</p>
+      <div class="stage" aria-label="Animation d'un signal lumineux dans une fibre optique">
+        <div class="fiber-end left"></div><div class="fiber-end right"></div>
+        <div class="fiber-cable"></div><div class="fiber-core"></div>
+        <div class="light-pulse"></div><div class="light-pulse l2"></div>
+      </div>
+      <div class="legend">
+        <div class="legend-row"><b>Support</b><span>Fibre optique</span></div>
+        <div class="legend-row"><b>Transport</b><span class="answer">signal lumineux</span></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="controls">
+    <button id="pause">Mettre en pause</button>
+    <button id="restart" class="secondary">Relancer les animations</button>
+  </div>
+
+  <section class="summary">
+    <h2>À retenir pour compléter la fiche</h2>
+    <div class="summary-grid">
+      <div class="pill"><b>Ethernet (RJ45)</b>Signal électrique</div>
+      <div class="pill"><b>Wi-Fi</b>Ondes électromagnétiques</div>
+      <div class="pill"><b>Fibre optique</b>Signal lumineux</div>
+    </div>
+    <p class="small">Le même fichier peut être transporté successivement par plusieurs supports : sa forme physique de transmission change, mais l'information reste la même.</p>
+  </section>
+</main>
+<footer>Technologie - Réseau informatique - Vincent Belhaire</footer>
+<script>
+const app=document.getElementById('app');
+const pause=document.getElementById('pause');
+let paused=false;
+pause.addEventListener('click',()=>{
+  paused=!paused; app.classList.toggle('paused',paused);
+  pause.textContent=paused?'Reprendre les animations':'Mettre en pause';
+});
+document.getElementById('restart').addEventListener('click',()=>{
+  app.classList.remove('paused'); paused=false; pause.textContent='Mettre en pause';
+  document.querySelectorAll('.stage').forEach(stage=>{
+    const clone=stage.cloneNode(true); stage.replaceWith(clone);
+  });
+});
+</script>
+</body>
+</html>
